@@ -4,20 +4,22 @@
 
 require_relative '../module_door'
 
-# class InscriptionError < StandardError
-# end
+class InscriptionError < StandardError
+end
 
+class OpenCloseError < StandardError
+end
 
+class LockError < StandardError
+end
 
 class Door::Door
-  attr_reader :isopened, :isclosed, :islocked, :isunlocked, :inscription, :has_inscription
+  attr_reader :isopened, :islocked, :inscription, :has_inscription
 
 # initially the door is closed and unlocked
-  def initialize()
-    @isopened = false
-    @isclosed = !isopened
+  def initialize(isopened=false)
+    @isopened = isopened
     @islocked = false
-    @isunlocked = !islocked
     @has_inscription = false
     @inscription = ""
   end
@@ -31,41 +33,39 @@ class Door::Door
       @inscription = text
       @has_inscription = true
     else
-      raise RuntimeError
+      raise InscriptionError
     end
   end
 
-  def open
-    if isclosed && isunlocked
+  def open_door
+    if !isopened && !islocked
       @isopened = true
-      @isclosed = !isopened
     else
-      raise RuntimeError
+      raise OpenCloseError
     end
   end
 
   def close
     if isopened
-      @isclosed = true
+      @isopened = false
     else
-      raise RuntimeError
+      raise OpenCloseError
     end
   end
 
   def lock
-    if isunlocked && isclosed
+    if !islocked && !isopened
       @islocked = true
-      @isunlocked = false
     else
-      raise RuntimeError
+      raise LockError
     end
   end
 
   def unlock
     if islocked
-      @isunlocked = true
+      @islocked = false
     else
-      raise RuntimeError
+      raise LockError
     end
   end
 end
